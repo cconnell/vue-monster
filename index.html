@@ -12,7 +12,7 @@
         <div class="small-6 columns">
             <h1 class="text-center">YOU</h1>
             <div class="healthbar">
-                <div class="healthbar text-center" style="background-color: green; margin: 0; color: white;">{{ userHealth }}
+                <div class="healthbar text-center" style="background-color: green; margin: 0; color: white;" :style="{width: userHealth + '%'}">{{ userHealth }}
 
                 </div>
             </div>
@@ -20,7 +20,7 @@
         <div class="small-6 columns">
             <h1 class="text-center">MONSTER</h1>
             <div class="healthbar">
-                <div class="healthbar text-center" style="background-color: green; margin: 0; color: white;">{{ monsterHealth }}
+                <div class="healthbar text-center" style="background-color: green; margin: 0; color: white;" :style="{width: monsterHealth + '%'}">{{ monsterHealth }}
 
                 </div>
             </div>
@@ -41,9 +41,9 @@
         </div>
     </section>
     <section class="row log" v-if="fightEvent">
-        <div class="small-12 columns" v-for="event in fightLog">
+        <div class="small-12 columns">
             <ul>
-              <li> {{ event }} </li>
+              <li v-for="event in fightLog" :class="{'player-turn': event.isUser, 'monster-turn': !event.isUser}"> {{ event.message }} </li>
             </ul>
         </div>
     </section>
@@ -66,21 +66,33 @@
       },
       attack: function () {
         this.userHealth -= 15;
-        this.fightLog.unshift("User attacks. Monster loses 10 health points.");
+        this.fightLog.unshift({
+          isUser: true,
+          message: "User attacks. Monster loses 10 health points."
+        });
         this.monsterHealth -= 10;
-        this.fightLog.unshift("Monster attacks. User loses 15 health points.");
+        this.fightLog.unshift({
+          isUser: false,
+          message: "Monster attacks. User loses 15 health points."
+        });
         this.checkHealth();
       },
       specialAttack: function () {
         this.userHealth -= 15;
-        this.fightLog.unshift("User special attacks. Monster loses 25 health points.");
-        this.fightLog.unshift("Monster attacks. User loses 15 health points.");
+        this.fightLog.unshift({
+          isUser: true,
+          message: "User special attacks. Monster loses 25 health points."});
+        this.fightLog.unshift({
+          isUser: false,
+          message: "Monster attacks. User loses 15 health points."});
         this.monsterHealth = this.monsterHealth - 25;
         this.checkHealth();
       },
       heal: function () {
         this.userHealth+= 5;
-        this.fightLog.unshift("User heals. User gains 5 health points.");
+        this.fightLog.unshift({
+          isUser: true,
+          message: "User heals. User gains 5 health points."});
       },
       toggleFightEvent: function () {
         this.fightEvent = !this.fightEvent;
