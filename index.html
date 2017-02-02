@@ -33,19 +33,17 @@
     </section>
     <section class="row controls" v-if="activeGame">
         <div class="small-12 columns">
-            <button id="attack">ATTACK</button>
-            <button id="special-attack">SPECIAL ATTACK</button>
-            <button id="heal">HEAL</button>
+            <button id="attack" @click="attack">ATTACK</button>
+            <button id="special-attack" @click="specialAttack">SPECIAL ATTACK</button>
+            <button id="heal" @click="heal">HEAL</button>
             <button id="give-up" @click=
-            "toggleActiveGame">GIVE UP</button>
+            "giveUp">GIVE UP</button>
         </div>
     </section>
-    <section class="row log" v-if="activeGame">
-        <div class="small-12 columns">
+    <section class="row log" v-if="fightEvent">
+        <div class="small-12 columns" v-for="event in fightLog">
             <ul>
-                <li>
-
-                </li>
+              <li> {{ event }} </li>
             </ul>
         </div>
     </section>
@@ -53,23 +51,55 @@
 
 <script>
   new Vue({
-  el: '#app',
-  data: {
-   activeGame: false,
-   userHealth: 100,
-   monsterHealth: 100,
+    el: '#app',
+    data: {
+     activeGame: false,
+     fightEvent: false,
+     userHealth: 100,
+     monsterHealth: 100,
+     fightLog: []
     },
-  methods: {
-    toggleActiveGame: function () {
-      this.activeGame = !this.activeGame;
-    },
-    attack: function () {
-      userHealth = userHealth - 10;
-      console.log('user: ' + userHealth);
-      monsterHealth = monsterHealth - 8;
-      console.log('monster:' + monsterHealth);
+    methods: {
+      toggleActiveGame: function () {
+        this.activeGame = !this.activeGame;
+        this.fightEvent = !this.fightEvent;
+      },
+      attack: function () {
+        this.userHealth -= 15;
+        this.fightLog.unshift("User attacks. Monster loses 10 health points.");
+        this.monsterHealth -= 10;
+        this.fightLog.unshift("Monster attacks. User loses 15 health points.");
+        this.checkHealth();
+      },
+      specialAttack: function () {
+        this.userHealth -= 15;
+        this.fightLog.unshift("User special attacks. Monster loses 25 health points.");
+        this.fightLog.unshift("Monster attacks. User loses 15 health points.");
+        this.monsterHealth = this.monsterHealth - 25;
+        this.checkHealth();
+      },
+      heal: function () {
+        this.userHealth+= 5;
+        this.fightLog.unshift("User heals. User gains 5 health points.");
+      },
+      toggleFightEvent: function () {
+        this.fightEvent = !this.fightEvent;
+      },
+      giveUp: function () {
+        this.userHealth = 100;
+        this.monsterHealth = 100;
+        return this.toggleActiveGame();
+      },
+      checkHealth: function () {
+        if (this.userHealth <= 0) {
+          alert("You lose!");
+          this.giveUp();
+        } else if (this.monsterHealth <= 0) {
+          alert("You win!");
+          this.giveUp();
+        }
+      }
     }
-  }
   });
 
 </script>
